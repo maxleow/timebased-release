@@ -50,8 +50,7 @@ class DailyReleaseModel:
     def has_unreleased_version(self):
         return self.today_ver != self.latest_ver
 
-    
-    
+        
 class JiraTimeBasedDailyRelease:
     
     def __init__(self, base_version: str, eod_hour=11, domain: str=None, email: str=None, secret: str=None):
