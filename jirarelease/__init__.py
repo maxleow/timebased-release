@@ -1,7 +1,7 @@
 """
 This is a example for jira release
 """
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 import os
 from datetime import datetime, timezone, timedelta
@@ -81,7 +81,7 @@ class JiraTimeBasedDailyRelease:
         
         return s_version, d_version
         
-    def include_issue(self, jira_issue: str, release_previous=True):
+    def include_issue(self, jira_issue: str, release_previous=True, dry_run=False):
         issue = self.jira.issue(jira_issue)
         project = jira_issue.split('-')[0]
         
@@ -96,10 +96,15 @@ class JiraTimeBasedDailyRelease:
         
         assignable_versions = self._create_versions(project, model, versions)
         
-        for v in assignable_versions:
-            issue.update(fields={'fixVersions': [{'id': v.id}]})
+        fix_vers = [{'id': v.id} for v in assignable_versions]
+        if not dry_run:
+            issue.update(fields={'fixVersions': fix_vers})
+        else:
+            print("Updating issue:", issue.key ,"to version: ", fix_vers)
             
         if release_previous and model.has_unreleased_version():
             latest_version = [v for v in versions if v.name == model.latest_ver][0]
-            print(latest_version)
-            latest_version.update(released=True)
+            if not dry_run:
+                latest_version.update(released=True)
+            else:
+                print("Releasing previous version: ", latest_version.name)
